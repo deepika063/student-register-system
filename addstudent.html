@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ADD STUDENT</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #6a1b9a;
+    }
+
+    a {
+      margin-bottom: 20px;
+      text-decoration: none;
+      color: #7b1fa2;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+
+    a:hover {
+      color: #d500f9;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    form input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    form button {
+      width: 100%;
+      padding: 12px;
+      background-color: #8e24aa;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    form button:hover {
+      background-color: #6a1b9a;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>ADD NEW STUDENT</h2>
+    <form id="addstudent">
+      <input type="text" name="name" placeholder="Enter student name" id="name" required><br/>
+      <input type="text" name="department" placeholder="Enter department" id="department" required><br/>
+      <input type="text" name="joining_year" placeholder="Enter joining year" id="joining_year" required><br/>
+      <button type="submit">ADD STUDENT</button>
+      <p id="message"></p>
+    </form>
+  </div>
+
+  <script>
+  const form = document.getElementById('addstudent');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const data = {
+      name: document.getElementById("name").value,
+      department: document.getElementById("department").value,
+      joining_year: document.getElementById("joining_year").value,
+    };
+
+    fetch("http://localhost:5000/addstudent", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(response => {
+      if (response["Register Number"]) {
+        document.getElementById("message").innerHTML = `
+          <span style="color:green;">Student added successfully!</span><br>
+          <strong>Register Number:</strong> ${response["Register Number"]}
+        `;
+        form.reset();  // Optional: clear form after success
+      } else {
+        document.getElementById("message").innerHTML = `
+          <span style="color:red;">Failed to add student.</span>
+        `;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      document.getElementById("message").innerHTML = `
+        <span style="color:red;">Error occurred while adding student.</span>
+      `;
+    });
+  });
+</script>
+
+</body>
+</html>

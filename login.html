@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Student Register System</h1>
+  </header>
+
+  <main class="card-container">
+    <div class="login-card">
+      <h2>Admin Login</h2>
+      <form id="login">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Student Register System | @ Deepika Reddy | @All rights reserved</p>
+  </footer>
+
+  <script>
+    const form = document.getElementById("login");
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value
+      };
+      fetch("http://localhost:5000/stafflogin", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message === "Login success") {
+          window.location.href = "home.html";
+        } else {
+          alert("Login failed");
+        }
+      });
+    });
+  </script>
+
+
+<style>
+  .footer {
+    background: linear-gradient(to right, #1d0518, #db34d5);
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    margin-top: 40px;
+    font-family: 'Segoe UI', sans-serif;
+    box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+    animation: fadeInUp 1s ease-out;
+  }
+
+  .footer-content {
+    max-width: 1200px;
+    margin: auto;
+  }
+
+  .footer-links {
+    margin-top: 10px;
+  }
+
+  .footer-links a {
+    color: #ffffffcc;
+    margin: 0 10px;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .footer-links a:hover {
+    color: #ffd700;
+    text-decoration: underline;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+</body>
+</html>

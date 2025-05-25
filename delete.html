@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Delete Student</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fdeff9, #ecf0f3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+    .card {
+      background: white;
+      padding: 30px 35px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      animation: slideIn 0.6s ease forwards;
+    }
+    @keyframes slideIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+    h2 {
+      margin-bottom: 25px;
+      color: #d32f73;
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus {
+      border-color: #d32f81;
+      outline: none;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      background-color: #d32f9f;
+      color: white;
+      padding: 12px 0;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      letter-spacing: 1px;
+    }
+    button:hover {
+      background-color: #b71c79;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    #message.success {
+      color: #388e3c;
+    }
+    #message.error {
+      color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Delete Student</h2>
+    <label for="regno">Enter Register Number:</label>
+    <input type="text" id="regno" placeholder="e.g., 2k23CSE001" />
+
+    <button id="deleteBtn">Delete Student</button>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    document.getElementById('deleteBtn').addEventListener('click', () => {
+      const regnoInput = document.getElementById('regno');
+      const message = document.getElementById('message');
+      const regno = regnoInput.value.trim();
+
+      message.textContent = '';
+      message.className = '';
+
+      if (!regno) {
+        message.textContent = "Please enter a register number.";
+        message.classList.add('error');
+        return;
+      }
+
+      fetch(`http://localhost:5000/deletestudent/${encodeURIComponent(regno)}`, {
+        method: 'DELETE',
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.Error){
+          message.textContent = data.Error;
+          message.classList.add('error');
+        } else {
+          message.textContent = `Student with Register Number ${data.register_number} deleted successfully.`;
+          message.classList.add('success');
+          regnoInput.value = '';
+        }
+      })
+      .catch(err => {
+        console.error('Error:', err);
+        message.textContent = "Failed to delete student. Please try again later.";
+        message.classList.add('error');
+      });
+    });
+  </script>
+
+</body>
+</html>

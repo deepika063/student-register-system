@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Find Student Details</title>
+  <style>
+    /* Reset and base styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e1f5fe, #f3e5f5);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* Container Card */
+    .card {
+      background-color: #fff;
+      padding: 35px 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 500px;
+      animation: fadeIn 0.7s ease-in-out;
+    }
+
+    /* Heading */
+    .card h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #7b1fa2;
+    }
+
+    /* Label */
+    .card label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    /* Input box */
+    .card input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+    }
+
+    .card input[type="text"]:focus {
+      border-color: #7b1fa2;
+      outline: none;
+    }
+
+    /* Button */
+    .card button {
+      width: 100%;
+      padding: 12px;
+      background-color: #8e24aa;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .card button:hover {
+      background-color: #ab47bc;
+    }
+
+    /* Result box */
+    #result {
+      margin-top: 25px;
+      animation: slideUp 0.4s ease-in-out;
+    }
+
+    #result h3 {
+      color: #6a1b9a;
+      margin-bottom: 15px;
+    }
+
+    #result p {
+      margin: 6px 0;
+      font-size: 15px;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(25px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Find Student by Register Number</h2>
+
+    <label for="regNo">Enter Register Number:</label>
+    <input type="text" id="regNo" placeholder="e.g., 2k23CSE001" />
+    <button onclick="getStudentDetails()">Search</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function getStudentDetails() {
+      const regNo = document.getElementById('regNo').value.trim();
+      const resultDiv = document.getElementById('result');
+
+      if (!regNo) {
+        alert('Please enter a register number');
+        return;
+      }
+
+      fetch(`http://localhost:5000/particularstudentdetails/${regNo}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.Error) {
+            resultDiv.innerHTML = `<p style="color:red;">${data.Error}</p>`;
+          } else {
+            // Use the joining_year as-is if it's a number or simple string,
+            // only parse if it looks like a full date string (e.g. "2023-08-15")
+            let year = data.joining_year;
+            if (typeof year === 'string' && year.includes('-')) {
+              year = new Date(year).getFullYear();
+            }
+
+            resultDiv.innerHTML = `
+              <h3>Student Details</h3>
+              <p><strong>Name:</strong> ${data.name}</p>
+              <p><strong>Department:</strong> ${data.department}</p>
+              <p><strong>Joining Year:</strong> ${year}</p>
+              <p><strong>Status:</strong> ${data.status}</p>
+              <p><strong>Register Number:</strong> ${data.register_number}</p>
+            `;
+          }
+        })
+        .catch(err => {
+          console.error('Error:', err);
+          resultDiv.innerHTML = '<p style="color:red;">Error fetching data.</p>';
+        });
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Filter Students</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #f3e5f5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .filter-card {
+      background-color: #fff;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+      animation: fadeIn 0.7s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #6a1b9a;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 16px;
+      font-weight: 500;
+      margin-right: 10px;
+    }
+
+    select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 60%;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #6a1b9a;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #8e24aa;
+    }
+
+    #result {
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f3e5f5;
+      color: #6a1b9a;
+    }
+
+    tr:hover {
+      background-color: #fce4ec;
+    }
+
+    #noData {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="filter-card">
+    <h2>Filter Students by Department</h2>
+
+    <label for="department">Select Department:</label>
+    <select id="department">
+      <option value="">--Select--</option>
+      <option value="Computer Science">CSE</option>
+      <option value="Electronics">ECE</option>
+      <option value="Electrical">EEE</option>
+      <option value="Mechanical">MECH</option>
+    </select>
+
+    <br/>
+    <button onclick="filterStudents()">Submit</button>
+
+    <div id="result">
+      <table id="studentTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Joining Year</th>
+            <th>Status</th>
+            <th>Register No</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div id="noData" style="display:none;">No students found for selected department.</div>
+    </div>
+  </div>
+
+  <script>
+    function filterStudents() {
+      const dept = document.getElementById("department").value;
+      const table = document.getElementById("studentTable");
+      const noData = document.getElementById("noData");
+      const tbody = table.querySelector("tbody");
+
+      if (!dept) {
+        alert("Please select a department");
+        return;
+      }
+
+      fetch(`http://localhost:5000/filter?department=${encodeURIComponent(dept)}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Network response was not ok");
+          return res.json();
+        })
+        .then(data => {
+          tbody.innerHTML = "";
+
+          if (data.length === 0) {
+            table.style.display = "none";
+            noData.style.display = "block";
+          } else {
+            noData.style.display = "none";
+            data.forEach(student => {
+              const row = `<tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.department}</td>
+                <td>${student.joining_year}</td>
+                <td>${student.status}</td>
+                <td>${student.register_number || "N/A"}</td>
+              </tr>`;
+              tbody.innerHTML += row;
+            });
+            table.style.display = "table";
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Error fetching data");
+          table.style.display = "none";
+          noData.style.display = "none";
+        });
+    }
+  </script>
+
+</body>
+</html>

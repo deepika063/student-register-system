@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Update Student by Register Number</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e1f5fe, #fce4ec);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .update-card {
+      background-color: #fff;
+      padding: 25px 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 90%;
+      max-width: 450px;
+      animation: fadeIn 0.7s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #6a1b9a;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 500;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #ab47bc;
+      outline: none;
+    }
+
+    button {
+      background-color: #6a1b9a;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #8e24aa;
+    }
+
+    form {
+      text-align: left;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="update-card">
+    <h2>Update Student Details</h2>
+
+    <label for="regNoInput">Register Number:</label>
+    <input type="text" id="regNoInput" placeholder="e.g. 2k23CSE001" />
+    <button onclick="fetchStudentByRegNo()">Submit</button>
+
+    <div id="updateForm" style="display:none;">
+      <form id="studentForm">
+        <label>Name:</label>
+        <input type="text" id="name" required>
+
+        <label>Department:</label>
+        <select id="department" required>
+          <option value="">--Select--</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Mechanical">Mechanical</option>
+        </select>
+
+        <label>Joining Year:</label>
+        <input type="number" id="joining_year" min="1900" max="2100" required>
+
+        <button type="submit">Update Student</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let currentStudentId = null;
+
+    function fetchStudentByRegNo() {
+      const regNo = document.getElementById('regNoInput').value.trim();
+      if (!regNo) {
+        alert("Please enter a register number.");
+        return;
+      }
+
+      fetch(`http://localhost:5000/studentbyregno/${encodeURIComponent(regNo)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.Error) {
+            alert(data.Error);
+            currentStudentId = null;
+            document.getElementById('updateForm').style.display = 'none';
+            return;
+          }
+
+          currentStudentId = data.id;
+          document.getElementById('name').value = data.name;
+          document.getElementById('department').value = data.department;
+          document.getElementById('joining_year').value = data.joining_year;
+          document.getElementById('updateForm').style.display = 'block';
+        })
+        .catch(err => {
+          alert("Error fetching student details: " + err);
+          currentStudentId = null;
+          document.getElementById('updateForm').style.display = 'none';
+        });
+    }
+
+    document.getElementById('studentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (!currentStudentId) {
+        alert("Please fetch a student first.");
+        return;
+      }
+
+      const updatedData = {
+        name: document.getElementById('name').value,
+        department: document.getElementById('department').value,
+        joining_year: document.getElementById('joining_year').value
+      };
+
+      fetch(`http://localhost:5000/updatestudentdetails/${currentStudentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData)
+      })
+        .then(res => res.json())
+        .then(response => {
+          if (response.Error) {
+            alert("Update failed: " + response.Error);
+          } else {
+            alert("Student updated successfully!");
+          }
+        })
+        .catch(err => alert("Error updating student: " + err));
+    });
+  </script>
+
+</body>
+</html>
